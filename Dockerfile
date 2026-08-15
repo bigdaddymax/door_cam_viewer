@@ -15,6 +15,6 @@ COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 # Відкриваємо порт 8080 для ESP32
-EXPOSE 8080
+EXPOSE 2222
 
 ENTRYPOINT ["/app/entrypoint.sh"]
