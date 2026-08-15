@@ -30,6 +30,7 @@ class CamStreamHandler(BaseHTTPRequestHandler):
                     self.end_headers()
                     self.wfile.write(frame)
                     self.wfile.write(b'\r\n')
+                    self.wfile.flush()
 
                 time.sleep(0.04)
 
