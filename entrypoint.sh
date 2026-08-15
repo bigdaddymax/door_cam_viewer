@@ -6,7 +6,7 @@ while true; do
   echo "Starting FFmpeg stream reader for $RTSP_URL..."
 
   ffmpeg -loglevel error \
-    -rw_timeout 5000000 \&X4Hev
+    -rw_timeout 5000000 \
     -fflags nobuffer -flags low_delay \
     -probesize 32 -analyzeduration 0 \
     -rtsp_transport tcp -i "$RTSP_URL" \
