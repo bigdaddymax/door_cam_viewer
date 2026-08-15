@@ -2,15 +2,9 @@ services:
   rtsp-streamer:
     build: .
     container_name: esp32_rtsp_streamer
-    restart: always
-    network_mode: "host"
+    restart: unless-stopped
+    network_mode: "host"   # <--- Працює напряму через мережеву карту NAS, без буферів Docker
     environment:
       - RTSP_URL=rtsp://192.168.0.24/11
     tmpfs:
       - /tmp:exec,size=64M
-    healthcheck:
-      # Перевіряємо, чи файл frame.jpg оновлювався протягом останніх 15 секунд
-      test: ["CMD-SHELL", "test $(find /tmp/frame.jpg -mmin -0.25) || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
