@@ -1,13 +1,16 @@
-version: '3.8'
-
 services:
   rtsp-streamer:
     build: .
     container_name: esp32_rtsp_streamer
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
+    restart: always
+    network_mode: "host"
     environment:
       - RTSP_URL=rtsp://192.168.0.24/11
     tmpfs:
-      - /tmp:exec,size=64M  # Монтуємо /tmp прямо у оперативну пам'ять (RAM), щоб не зношувати SSD/SD-карту!
+      - /tmp:exec,size=64M
+    healthcheck:
+      # Перевіряємо, чи файл frame.jpg оновлювався протягом останніх 15 секунд
+      test: ["CMD-SHELL", "test $(find /tmp/frame.jpg -mmin -0.25) || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
