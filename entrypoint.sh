@@ -1,15 +1,25 @@
 #!/bin/bash
 
-# Змінна для RTSP URL (можна передавати через env у docker)
 RTSP_URL="${RTSP_URL:-rtsp://192.168.0.24/11}"
 
-echo "Starting FFmpeg stream reader for $RTSP_URL..."
+# Створюємо нескінченний цикл для захисту від падінь FFmpeg
+while true; do
+  echo "Starting FFmpeg stream reader..."
 
-# Запускаємо FFmpeg у фоновому режимі (&)
-ffmpeg -loglevel error -rtsp_transport tcp -i "$RTSP_URL" \
-  -vf "scale=480:320" -q:v 8 -r 12 \
-  -update 1 -y /tmp/frame.jpg &
+  ffmpeg -loglevel error \
+    -stimeout 5000000 \
+    -fflags nobuffer -flags low_delay \
+    -probesize 32 -analyzeduration 0 \
+    -rtsp_transport tcp -i "$RTSP_URL" \
+    -vf "scale=480:320" -q:v 8 -r 15 \
+    -tune zerolatency -preset ultrafast \
+    -update 1 -y /tmp/frame.jpg
 
-# Запускаємо Python HTTP-сервер
+  # Якщо FFmpeg завершив роботу (через помилку або таймаут),
+  # цикл не дає скрипту зупинитися і перезапускає його через 2 секунди
+  echo "FFmpeg process died or timed out. Reconnecting in 2 seconds..."
+  sleep 2
+done &
+
 echo "Starting Python MJPEG Server on port 8080..."
 python3 /app/stream_server.py
